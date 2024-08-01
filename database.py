@@ -1,4 +1,6 @@
 import mysql.connector
+import matplotlib.pyplot as plt
+from collections import defaultdict
 
 class Database:
     def __init__(self):
@@ -63,4 +65,14 @@ class Database:
             WHERE a.student_id = %s
             ORDER BY a.date
         """, (student_id,))
-        return self.cursor.fetchall()    
+        return self.cursor.fetchall()
+
+    def get_assessments_data(self):
+        self.cursor.execute("""
+            SELECT s.name, a.date, ad.aspect, ad.score
+            FROM Students s
+            JOIN Assessments a ON s.student_id = a.student_id
+            JOIN AssessmentDetails ad ON a.assessment_id = ad.assessment_id
+            ORDER BY s.name, a.date
+        """)
+        return self.cursor.fetchall()
