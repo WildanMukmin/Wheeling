@@ -4,26 +4,31 @@ from pathlib import Path
 
 # <---------------------- Akses File ---------------------->
 
-def readFileCsv(fileName):
-    items = []
+def readData(fileName):
+    assessments = []
     try:
         with open(fileName, 'r') as file:
             reader = csv.reader(file)
             next(reader)  # Skip header
             for row in reader:
                 if len(row) == 8:
-                    items.append({
-                        "date": row[0],
-                        "balance": row[1],
-                        "strength": row[2],
-                        "flexibility": row[3],
-                        "endurance": row[4],
-                        "core": row[5],
-                        "semangat": row[6]
-                    })
+                    assessments.append(row)
     except FileNotFoundError:
         print(f"File {fileName} tidak ditemukan.")
-    return items
+    return assessments
+
+def readStudents(fileName):
+    students = []
+    try:
+        with open(fileName, 'r') as file:
+            reader = csv.reader(file)
+            next(reader)  # Skip header
+            for row in reader:
+                if len(row) == 2:
+                    students.append(row)
+    except FileNotFoundError:
+        print(f"File {fileName} tidak ditemukan.")
+    return students
 
 # <---------------------- Class Student dan Students ---------------------->
 
@@ -36,7 +41,8 @@ class Student:
         cwd = Path.cwd()
 
         # Membuat path lengkap untuk direktori baru
-        lokasi = cwd / 'data' / name
+        lokasi = cwd / 'data' / name #untuk parent file
+        bulan = cwd / 'data' / name / month #untuk parent file
 
         # Membuat direktori baru
         try:
@@ -45,8 +51,14 @@ class Student:
         except OSError as e:
             print(f"Gagal membuat folder '{lokasi}'. Error: {e}")
 
-        data = [["date", "balance", "strength", "flexibility", "endurance", "core", "semangat"]]
-        csv_file_path = lokasi / f"{month}.csv"
+        try:
+            bulan.mkdir(parents=True, exist_ok=True)
+            print(f"Folder '{bulan}' berhasil dibuat.")
+        except OSError as e:
+            print(f"Gagal membuat folder '{bulan}'. Error: {e}")
+
+        data = [["date", "balance", "strength", "flexibility", "endurance", "core", "semangat", "total"]]
+        csv_file_path = bulan / f"data.csv"
 
         try:
             with open(csv_file_path, mode='w', newline='') as file:
@@ -220,7 +232,6 @@ class Students:
     
     def setSemangat(self, name, month, semangat):
         pass
-
 
 
 anu = Student("mub", "agustus")
