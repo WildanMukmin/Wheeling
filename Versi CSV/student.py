@@ -11,8 +11,7 @@ def readData(fileName):
             reader = csv.reader(file)
             next(reader)  # Skip header
             for row in reader:
-                if len(row) == 8:
-                    assessments.append(row)
+                assessments.append(row)
     except FileNotFoundError:
         print(f"File {fileName} tidak ditemukan.")
     return assessments
@@ -24,8 +23,7 @@ def readStudents(fileName):
             reader = csv.reader(file)
             next(reader)  # Skip header
             for row in reader:
-                if len(row) == 2:
-                    students.append(row)
+                students.append(row)
     except FileNotFoundError:
         print(f"File {fileName} tidak ditemukan.")
     return students
@@ -186,52 +184,171 @@ class Students:
             print(f"No data found with ID {student_id}.")
 
     # <------------------- METHOD GETTER ------------------->
+    
     def getAllstudents(self):
-        pass
+        data = readStudents("students.csv")
+        return data
 
-    def getDate(self, name, month):
-        pass
+    def getName (self, id):
+        id = str(id)
+        data = readStudents("students.csv")
+        for i in data:
+            if i[0] == id:
+                return i[1]
+    
+    def getDetailStudent(self, id, month):
+        fileName = f"data/{self.getName(id)}/{month}/data.csv"
+        data = readData(fileName)
+        return data
+    
+    def getDate(self, id, month):
+        date = []
+        fileName = f"data/{self.getName(id)}/{month}/data.csv"
+        data = readData(fileName)
+        for i in data:
+            # print(i[0])
+            date.append(i[0])
+        return date
 
-    def getBalance(self, name, month):
-        pass
+    def getBalance(self, id, month):
+        balance = []
+        fileName = f"data/{self.getName(id)}/{month}/data.csv"
+        data = readData(fileName)
+        for i in data:
+            # print(i[0])
+            balance.append(i[1])
+        return balance
 
-    def getStrength(self, name, month):
-        pass
+    def getStrength(self, id, month):
+        strength = []
+        fileName = f"data/{self.getName(id)}/{month}/data.csv"
+        data = readData(fileName)
+        for i in data:
+            # print(i[0])
+            strength.append(i[2])
+        return strength
     
-    def getFlexibility(self, name, month):
-        pass
+    def getFlexibility(self, id, month):
+        flexibility = []
+        fileName = f"data/{self.getName(id)}/{month}/data.csv"
+        data = readData(fileName)
+        for i in data:
+            # print(i[0])
+            flexibility.append(i[3])
+        return flexibility
     
-    def getEndurance(self, name, month):
-        pass
+    def getEndurance(self, id, month):
+        endurance = []
+        fileName = f"data/{self.getName(id)}/{month}/data.csv"
+        data = readData(fileName)
+        for i in data:
+            # print(i[0])
+            endurance.append(i[4])
+        return endurance
     
-    def getCore(self, name, month):
-        pass
+    def getCore(self, id, month):
+        core = []
+        fileName = f"data/{self.getName(id)}/{month}/data.csv"
+        data = readData(fileName)
+        for i in data:
+            # print(i[0])
+            core.append(i[5])
+        return core
     
-    def getSemangat(self, name, month):
-        pass
+    def getSemangat(self, id, month):
+        semangat = []
+        fileName = f"data/{self.getName(id)}/{month}/data.csv"
+        data = readData(fileName)
+        for i in data:
+            # print(i[0])
+            semangat.append(i[6])
+        return semangat
+    
+    def getTotal(self, id, month):
+        total = []
+        fileName = f"data/{self.getName(id)}/{month}/data.csv"
+        data = readData(fileName)
+        for i in data:
+            # print(i[0])
+            total.append(i[7])
+        return total
+        
+    def updateStudentData(self, id, month, date, balance=None, strength=None, flexibility=None, endurance=None, core=None, semangat=None, total=None):
+        fileName = f"data/{self.getName(id)}/{month}/data.csv"
+        data = readData(fileName)
+        
+        # Find the row with the given date and update the corresponding columns
+        updated = False
+        for row in data:
+            if row[0] == date:
+                if balance is not None:
+                    row[1] = balance
+                if strength is not None:
+                    row[2] = strength
+                if flexibility is not None:
+                    row[3] = flexibility
+                if endurance is not None:
+                    row[4] = endurance
+                if core is not None:
+                    row[5] = core
+                if semangat is not None:
+                    row[6] = semangat
+                if total is not None:
+                    row[7] = total
+                updated = True
+                break
+        
+        if updated:
+            with open(fileName, mode='w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(["date", "balance", "strength", "flexibility", "endurance", "core", "semangat", "total"])
+                writer.writerows(data)
+            print(f"Data for {self.getName(id)} on {date} in {month} has been updated.")
+        else:
+            print(f"No data found for {self.getName(id)} on {date} in {month}.")
                     
     # <------------------- METHOD SETTER ------------------->
 
-    def setDate(self, name, month, date):
-        pass
+    def setDate(self, id, month, old_date, new_date):
+        fileName = f"data/{self.getName(id)}/{month}/data.csv"
+        data = readData(fileName)
+        
+        # Find the row with the given old_date and update the date
+        updated = False
+        for row in data:
+            if row[0] == old_date:
+                row[0] = new_date
+                updated = True
+                break
+        
+        if updated:
+            with open(fileName, mode='w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(["date", "balance", "strength", "flexibility", "endurance", "core", "semangat", "total"])
+                writer.writerows(data)
+            print(f"Date for {self.getName(id)} on {old_date} in {month} has been updated to {new_date}.")
+        else:
+            print(f"No data found for {self.getName(id)} on {old_date} in {month}.")
 
-    def setBalance(self, name, month, balance):
-        pass
+    def setBalance(self, id, month, date, balance):
+        self.updateStudentData(id, month, date, balance=balance)
 
-    def setStrength(self, name, month, strength):
-        pass
+    def setStrength(self, id, month, date, strength):
+        self.updateStudentData(id, month, date, strength=strength)
+
+    def setFlexibility(self, id, month, date, flexibility):
+        self.updateStudentData(id, month, date, flexibility=flexibility)
     
-    def setFlexibility(self, name, month, flexibility):
-        pass
+    def setEndurance(self, id, month, date, endurance):
+        self.updateStudentData(id, month, date, endurance=endurance)
     
-    def setEndurance(self, name, month, endurance):
-        pass
+    def setCore(self, id, month, date, core):
+        self.updateStudentData(id, month, date, core=core)
     
-    def setCore(self, name, month, core):
-        pass
-    
-    def setSemangat(self, name, month, semangat):
-        pass
+    def setSemangat(self, id, month, date, semangat):
+        self.updateStudentData(id, month, date, semangat=semangat)
 
 
-anu = Student("mub", "agustus")
+anu = Students()
+ 
+print(anu.getTotal(2,"agustus"))
