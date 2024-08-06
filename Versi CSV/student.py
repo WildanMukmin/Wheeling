@@ -1,32 +1,21 @@
 import csv
 import os
 from pathlib import Path
+import shutil
 
 # <---------------------- Akses File ---------------------->
 
-def readData(fileName):
-    assessments = []
+def readFile(fileName):
+    data = []
     try:
         with open(fileName, 'r') as file:
             reader = csv.reader(file)
             next(reader)  # Skip header
             for row in reader:
-                assessments.append(row)
+                data.append(row)
     except FileNotFoundError:
         print(f"File {fileName} tidak ditemukan.")
-    return assessments
-
-def readStudents(fileName):
-    students = []
-    try:
-        with open(fileName, 'r') as file:
-            reader = csv.reader(file)
-            next(reader)  # Skip header
-            for row in reader:
-                students.append(row)
-    except FileNotFoundError:
-        print(f"File {fileName} tidak ditemukan.")
-    return students
+    return data
 
 # <---------------------- Class Student dan Students ---------------------->
 
@@ -65,33 +54,9 @@ class Student:
             print(f"File CSV '{csv_file_path}' berhasil dibuat.")
         except Exception as e:
             print(f"Gagal membuat file CSV '{csv_file_path}'. Error: {e}")
-
-        self.check_data(name)
-
-    def check_data(self, name):
-        if not os.path.exists('students.csv'):
-            print("No data found.")
-            with open('students.csv', "w", newline='') as file:
-                writer = csv.writer(file)
-                writer.writerow(["id", "name"])
-                writer.writerow([1, name])
-            return
-
-        with open('students.csv', "r") as file:
-            reader = csv.reader(file)
-            lines = list(reader)
-        
-        name_exists = False
-        for line in lines:
-            if line[1] == name:
-                name_exists = True
-                break
-
-        if not name_exists:
-            new_id = int(lines[-1][0]) + 1 if len(lines) > 1 else 1
-            with open('students.csv', "a", newline='') as file:
-                writer = csv.writer(file)
-                writer.writerow([new_id, name])
+            
+            
+            
 
 class Students:
     def __init__(self):
@@ -118,93 +83,137 @@ class Students:
 
     # <------------------- METHOD CRUD ------------------->
     
-    def create_data(self, name):
-        new_id = self.get_next_id()
-        with open(self.file_name, "a", newline='') as file:
+    def addData(self, name, month):
+        fileName = f"students.csv"
+        params = False
+        if not os.path.exists(fileName):
+            print(f"File {fileName} tidak ditemukan.")
+            return
+
+        row = readFile(fileName)
+        
+        for i in row:
+            if i[1] == name:
+                params = True
+                break
+        
+        if not params:
+            new_row = [self.get_next_id(), name]
+            row.append(new_row)
+
+        with open(fileName, "w", newline='', encoding="utf-8") as file:
             writer = csv.writer(file)
-            writer.writerow([new_id, name])
+            writer.writerow(["id", "name"])  # Add header row
+            for i in row:
+                writer.writerow(i)
+        Student(name,month)
 
-    def read_data(self):
-        data = []
+    def updateData(self, id, name):
+        cwd = Path.cwd()
+        folder_lama = cwd / 'data' / self.getName(id)
+        folder_baru = cwd / 'data' / name
+        
         if not os.path.exists(self.file_name):
             print("No data found.")
             return
-
-        with open(self.file_name, "r") as file:
-            reader = csv.reader(file)
-            next(reader)  # Skip header
-            for row in reader:
-                data.append([row[0], row[1]])
-                print(f"ID: {row[0]}, Name: {row[1]}")
-
-    def update_data(self, student_id, new_name):
-        if not os.path.exists(self.file_name):
-            print("No data found.")
-            return
-
-        rows = []
-        updated = False
-        with open(self.file_name, "r") as file:
-            reader = csv.reader(file)
-            for row in reader:
-                if row[0] == str(student_id):
-                    row[1] = new_name
-                    updated = True
-                rows.append(row)
-
-        if updated:
-            with open(self.file_name, "w", newline='') as file:
+        data = readFile(self.file_name)
+        params = False
+        
+        for i in data:
+            if i[0] == str(id):
+                i[1] = name
+                params = True
+                break
+        if params:
+            with open(self.file_name, "w", newline='', encoding="utf-8") as file:
                 writer = csv.writer(file)
-                writer.writerows(rows)
-            print(f"Data with ID {student_id} has been updated.")
+                writer.writerow(["id", "name"])  # Add header row
+                for i in data:
+                    writer.writerow(i)
+            print(f"Data with ID {id} has been update.")
+            os.rename(folder_lama, folder_baru)
         else:
-            print(f"No data found with ID {student_id}.")
+            print(f"No data found with ID {id}.")
 
-    def delete_data(self, student_id):
+    def deleteData(self, id):
+        cwd = Path.cwd()
+        folder = cwd / 'data' / self.getName(id)
+        
         if not os.path.exists(self.file_name):
             print("No data found.")
             return
-
-        rows = []
-        deleted = False
-        with open(self.file_name, "r") as file:
-            reader = csv.reader(file)
-            for row in reader:
-                if row[0] != str(student_id):
-                    rows.append(row)
-                else:
-                    deleted = True
-
-        if deleted:
-            with open(self.file_name, "w", newline='') as file:
+        
+        data_lama = readFile(self.file_name)
+        data_baru = []
+        params = False
+        
+        for i in data_lama:
+            if i[0] == str(id):
+                params = True
+                continue
+            data_baru.append(i)
+            
+        if params:
+            with open(self.file_name, "w", newline='', encoding="utf-8") as file:
                 writer = csv.writer(file)
-                writer.writerows(rows)
-            print(f"Data with ID {student_id} has been deleted.")
+                writer.writerow(["id", "name"])  # Add header row
+                for i in data_baru:
+                    writer.writerow(i)
+            print(f"Data with ID {id} has been deleted.")
+            try:
+                shutil.rmtree(folder)
+                print(f"Folder '{folder}' beserta semua isinya berhasil dihapus.")
+            except FileNotFoundError:
+                print(f"Folder '{folder}' tidak ditemukan.")
+            except PermissionError:
+                print(f"Izin ditolak untuk menghapus folder '{folder}'.")
+            except Exception as e:
+                print(f"Terjadi kesalahan: {e}")
         else:
-            print(f"No data found with ID {student_id}.")
+            print(f"No data found with ID {id}.")
+
+    def addProgress(self, id, month, date, balance, strength, flexibility, endurance, core, semangat):
+        fileName = f"data/{self.getName(id)}/{month}/data.csv"
+        total = sum([balance, strength, flexibility, endurance, core, semangat])
+
+        if not os.path.exists(fileName):
+            print(f"File {fileName} tidak ditemukan.")
+            return
+
+        row = readFile(fileName)
+        new_row = [date, balance, strength, flexibility, endurance, core, semangat, total]
+        row.append(new_row)
+        
+        with open(fileName, "w", newline='', encoding="utf-8") as file:
+            writer = csv.writer(file)
+            writer.writerow(["date", "balance", "strength", "flexibility", "endurance", "core", "semangat", "total"])  # Add header row
+            for i in row:
+                writer.writerow(i)
+
+        print(f"Progress for {self.getName(id)} on {date} in {month} has been added.")
 
     # <------------------- METHOD GETTER ------------------->
     
     def getAllstudents(self):
-        data = readStudents("students.csv")
+        data = readFile("students.csv")
         return data
 
     def getName (self, id):
         id = str(id)
-        data = readStudents("students.csv")
+        data = readFile("students.csv")
         for i in data:
             if i[0] == id:
                 return i[1]
     
     def getDetailStudent(self, id, month):
         fileName = f"data/{self.getName(id)}/{month}/data.csv"
-        data = readData(fileName)
+        data = readFile(fileName)
         return data
     
     def getDate(self, id, month):
         date = []
         fileName = f"data/{self.getName(id)}/{month}/data.csv"
-        data = readData(fileName)
+        data = readFile(fileName)
         for i in data:
             # print(i[0])
             date.append(i[0])
@@ -213,7 +222,7 @@ class Students:
     def getBalance(self, id, month):
         balance = []
         fileName = f"data/{self.getName(id)}/{month}/data.csv"
-        data = readData(fileName)
+        data = readFile(fileName)
         for i in data:
             # print(i[0])
             balance.append(i[1])
@@ -222,7 +231,7 @@ class Students:
     def getStrength(self, id, month):
         strength = []
         fileName = f"data/{self.getName(id)}/{month}/data.csv"
-        data = readData(fileName)
+        data = readFile(fileName)
         for i in data:
             # print(i[0])
             strength.append(i[2])
@@ -231,7 +240,7 @@ class Students:
     def getFlexibility(self, id, month):
         flexibility = []
         fileName = f"data/{self.getName(id)}/{month}/data.csv"
-        data = readData(fileName)
+        data = readFile(fileName)
         for i in data:
             # print(i[0])
             flexibility.append(i[3])
@@ -240,7 +249,7 @@ class Students:
     def getEndurance(self, id, month):
         endurance = []
         fileName = f"data/{self.getName(id)}/{month}/data.csv"
-        data = readData(fileName)
+        data = readFile(fileName)
         for i in data:
             # print(i[0])
             endurance.append(i[4])
@@ -249,7 +258,7 @@ class Students:
     def getCore(self, id, month):
         core = []
         fileName = f"data/{self.getName(id)}/{month}/data.csv"
-        data = readData(fileName)
+        data = readFile(fileName)
         for i in data:
             # print(i[0])
             core.append(i[5])
@@ -258,7 +267,7 @@ class Students:
     def getSemangat(self, id, month):
         semangat = []
         fileName = f"data/{self.getName(id)}/{month}/data.csv"
-        data = readData(fileName)
+        data = readFile(fileName)
         for i in data:
             # print(i[0])
             semangat.append(i[6])
@@ -267,15 +276,17 @@ class Students:
     def getTotal(self, id, month):
         total = []
         fileName = f"data/{self.getName(id)}/{month}/data.csv"
-        data = readData(fileName)
+        data = readFile(fileName)
         for i in data:
             # print(i[0])
             total.append(i[7])
         return total
         
+    # <------------------- METHOD SETTER ------------------->
+
     def updateStudentData(self, id, month, date, balance=None, strength=None, flexibility=None, endurance=None, core=None, semangat=None, total=None):
         fileName = f"data/{self.getName(id)}/{month}/data.csv"
-        data = readData(fileName)
+        data = readFile(fileName)
         
         # Find the row with the given date and update the corresponding columns
         updated = False
@@ -307,11 +318,9 @@ class Students:
         else:
             print(f"No data found for {self.getName(id)} on {date} in {month}.")
                     
-    # <------------------- METHOD SETTER ------------------->
-
     def setDate(self, id, month, old_date, new_date):
         fileName = f"data/{self.getName(id)}/{month}/data.csv"
-        data = readData(fileName)
+        data = readFile(fileName)
         
         # Find the row with the given old_date and update the date
         updated = False
@@ -349,6 +358,4 @@ class Students:
         self.updateStudentData(id, month, date, semangat=semangat)
 
 
-anu = Students()
- 
-print(anu.getTotal(2,"agustus"))
+
