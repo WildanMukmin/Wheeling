@@ -356,6 +356,3 @@ class Students:
     
     def setSemangat(self, id, month, date, semangat):
         self.updateStudentData(id, month, date, semangat=semangat)
-
-
-
