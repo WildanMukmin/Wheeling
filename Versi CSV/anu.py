@@ -1,8 +1,8 @@
 from customtkinter import CTkFrame, CTkLabel, CTkButton, CTkEntry, CTkOptionMenu, CTk, CTkScrollableFrame
-from tkinter import StringVar, Tk
+from tkinter import StringVar
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from student import Students  # Ensure this module exists and is correctly imported
+from student import Students
 
 class ContectDisplayAllStudents(CTkScrollableFrame):
     def __init__(self, master, command=None, **kwargs):
@@ -104,23 +104,23 @@ class SkatingApp:
         for student in data:
             self.list_students.manage_button(student)
 
-    def label_button_frame_event(self, action, item):
-        id = next((student[0] for student in self.db.getAllstudents() if student[1] == item), None)
+    def label_button_frame_event(self, action, data):
+        id = next((student[0] for student in self.db.getAllstudents() if student[1] == data), None)
         selected_month = self.month_var.get()
         
         if action == 'newData' and id:
-            self.addNewProgress(id, selected_month)
+            self.add_new_progress(id, selected_month)
         elif action == 'detail' and id:
             self.display_student_details(id, selected_month)
         elif action == 'delete' and id:
-            self.db.deleteData(id)
+            self.delete_student(id)
             self.display_all()  # Refresh the list
         elif action == 'update' and id:
             self.update_student(id, selected_month)
         elif action == 'graph' and id:
             self.display_graph(id, selected_month)
     
-    def addNewProgress(self, id, month):
+    def add_new_progress(self, id, month):
         self.clear_frame(self.frame_content)
         
         CTkLabel(self.frame_content, text="Date").grid(row=0, column=0, padx=10, pady=10)
@@ -178,8 +178,11 @@ class SkatingApp:
         # Display student details
         for row_index, detail in enumerate(student_details, start=1):
             detail_row = [id, student_name] + detail
-            for col_index, item in enumerate(detail_row):
-                CTkLabel(self.frame_content, text=item, width=100, height=24).grid(row=row_index, column=col_index, padx=5, pady=5)
+            for col_index, data in enumerate(detail_row):
+                CTkLabel(self.frame_content, text=data, width=100, height=24).grid(row=row_index, column=col_index, padx=5, pady=5)
+
+    def delete_student(self, id):
+        self.db.deleteData(id)
 
     def update_student(self, id, month):
         self.clear_frame(self.frame_content)
@@ -209,22 +212,41 @@ class SkatingApp:
         totals = list(map(int, self.db.getTotal(id, month)))
         
         fig, ax = plt.subplots()
-        ax.plot(dates, balances, label='Balance')
-        ax.plot(dates, strengths, label='Strength')
-        ax.plot(dates, flexibilities, label='Flexibility')
-        ax.plot(dates, endurances, label='Endurance')
-        ax.plot(dates, cores, label='Core')
-        ax.plot(dates, semangats, label='Semangat')
-        ax.plot(dates, totals, label='Total')
         
-        ax.set_xlabel('Date')
-        ax.set_ylabel('Scores')
-        ax.set_title(f'Student ID: {id} Progress in {month}')
-        ax.legend()
+        def plot_graph():
+            ax.clear()
+            ax.plot(dates, balances, label='Balance')
+            ax.plot(dates, strengths, label='Strength')
+            ax.plot(dates, flexibilities, label='Flexibility')
+            ax.plot(dates, endurances, label='Endurance')
+            ax.plot(dates, cores, label='Core')
+            ax.plot(dates, semangats, label='Semangat')
+            ax.set_xlabel('Date')
+            ax.set_ylabel('Scores')
+            ax.set_title(f'Student ID: {id} Progress in {month}')
+            ax.legend()
+            canvas.draw()
+        
+        def plot_total_graph():
+            ax.clear()
+            ax.plot(dates, totals, label='Total')
+            ax.set_xlabel('Date')
+            ax.set_ylabel('Total Score')
+            ax.set_title(f'Student ID: {id} Total Progress in {month}')
+            ax.legend()
+            canvas.draw()
         
         canvas = FigureCanvasTkAgg(fig, master=self.frame_content)
         canvas.draw()
         canvas.get_tk_widget().pack(fill='both', expand=True)
+        
+        button_frame = CTkFrame(self.frame_content)
+        button_frame.pack(fill='x')
+        
+        CTkButton(button_frame, text="Graph", command=plot_graph).pack(side='left', padx=10, pady=10)
+        CTkButton(button_frame, text="Total Graph", command=plot_total_graph).pack(side='right', padx=10, pady=10)
+        
+        plot_graph()
 
 if __name__ == "__main__":
     root = CTk()
