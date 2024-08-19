@@ -85,6 +85,9 @@ class SkatingApp:
         self.btn_display_all = CTkButton(self.frame_header, text="Display All", command=self.display_all)
         self.btn_display_all.place(relx=0.25, rely=0.5, anchor="center")
 
+        self.btn_add_student = CTkButton(self.frame_header, text="Add New Student", command=self.add_student)
+        self.btn_add_student.place(relx=0.75, rely=0.5, anchor="center")
+
         # <--------------------------- CONTENT --------------------------->
         
         # Initial display of students
@@ -103,6 +106,27 @@ class SkatingApp:
         
         for student in data:
             self.list_students.manage_button(student)
+
+    def add_student(self):
+        self.clear_frame(self.frame_content)
+        
+        CTkLabel(self.frame_content, text="Nama").grid(row=0, column=0, padx=10, pady=10)
+        name_entry = CTkEntry(self.frame_content)
+        name_entry.grid(row=0, column=1, padx=10, pady=10)
+        
+        CTkLabel(self.frame_content, text="Bulan").grid(row=1, column=0, padx=10, pady=10)
+        month_entry = CTkEntry(self.frame_content)
+        month_entry.grid(row=1, column=1, padx=10, pady=10)
+        
+        def add_new():
+            name = name_entry.get()
+            month = month_entry.get()
+
+            self.db.addData(name,month)
+            self.display_all()
+        
+        add_button = CTkButton(self.frame_content, text="Add", command=add_new)
+        add_button.grid(row=7, column=0, columnspan=2, pady=20)
 
     def label_button_frame_event(self, action, data):
         id = next((student[0] for student in self.db.getAllstudents() if student[1] == data), None)

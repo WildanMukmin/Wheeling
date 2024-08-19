@@ -85,6 +85,9 @@ class SkatingApp:
         self.btn_display_all = CTkButton(self.frame_header, text="Display All", command=self.display_all)
         self.btn_display_all.place(relx=0.25, rely=0.5, anchor="center")
 
+        self.btn_add_student = CTkButton(self.frame_header, text="Add New Student", command=self.add_student)
+        self.btn_add_student.place(relx=0.75, rely=0.5, anchor="center")
+
         # <--------------------------- CONTENT --------------------------->
         
         # Initial display of students
@@ -103,6 +106,27 @@ class SkatingApp:
         
         for student in data:
             self.list_students.manage_button(student)
+
+    def add_student(self):
+        self.clear_frame(self.frame_content)
+        
+        CTkLabel(self.frame_content, text="Nama").grid(row=0, column=0, padx=10, pady=10)
+        name_entry = CTkEntry(self.frame_content)
+        name_entry.grid(row=0, column=1, padx=10, pady=10)
+        
+        CTkLabel(self.frame_content, text="Bulan").grid(row=1, column=0, padx=10, pady=10)
+        month_entry = CTkEntry(self.frame_content)
+        month_entry.grid(row=1, column=1, padx=10, pady=10)
+        
+        def add_new():
+            name = name_entry.get()
+            month = month_entry.get()
+
+            self.db.addData(name,month)
+            self.display_all()
+        
+        add_button = CTkButton(self.frame_content, text="Add", command=add_new)
+        add_button.grid(row=7, column=0, columnspan=2, pady=20)
 
     def label_button_frame_event(self, action, data):
         id = next((student[0] for student in self.db.getAllstudents() if student[1] == data), None)
@@ -212,24 +236,41 @@ class SkatingApp:
         totals = list(map(int, self.db.getTotal(id, month)))
         
         fig, ax = plt.subplots()
-        ax.plot(dates, balances, label='Balance')
-        ax.plot(dates, strengths, label='Strength')
-        ax.plot(dates, flexibilities, label='Flexibility')
-        ax.plot(dates, endurances, label='Endurance')
-        ax.plot(dates, cores, label='Core')
-        ax.plot(dates, semangats, label='Semangat')
-        ax.plot(dates, totals, label='Total')
         
-        ax.set_xlabel('Date')
-        ax.set_ylabel('Scores')
-        ax.set_title(f'Student ID: {id} Progress in {month}')
-        ax.legend()
+        def plot_graph():
+            ax.clear()
+            ax.plot(dates, balances, label='Balance')
+            ax.plot(dates, strengths, label='Strength')
+            ax.plot(dates, flexibilities, label='Flexibility')
+            ax.plot(dates, endurances, label='Endurance')
+            ax.plot(dates, cores, label='Core')
+            ax.plot(dates, semangats, label='Semangat')
+            ax.set_xlabel('Date')
+            ax.set_ylabel('Scores')
+            ax.set_title(f'Student ID: {id} Progress in {month}')
+            ax.legend()
+            canvas.draw()
+        
+        def plot_total_graph():
+            ax.clear()
+            ax.plot(dates, totals, label='Total')
+            ax.set_xlabel('Date')
+            ax.set_ylabel('Total Score')
+            ax.set_title(f'Student ID: {id} Total Progress in {month}')
+            ax.legend()
+            canvas.draw()
         
         canvas = FigureCanvasTkAgg(fig, master=self.frame_content)
         canvas.draw()
         canvas.get_tk_widget().pack(fill='both', expand=True)
-
-
+        
+        button_frame = CTkFrame(self.frame_content)
+        button_frame.pack(fill='x')
+        
+        CTkButton(button_frame, text="Graph", command=plot_graph).pack(side='left', padx=10, pady=10)
+        CTkButton(button_frame, text="Total Graph", command=plot_total_graph).pack(side='right', padx=10, pady=10)
+        
+        plot_graph()
 
 if __name__ == "__main__":
     root = CTk()

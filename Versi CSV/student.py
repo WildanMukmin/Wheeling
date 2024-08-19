@@ -178,6 +178,8 @@ class Students:
 
         if not os.path.exists(fileName):
             print(f"File {fileName} tidak ditemukan.")
+            Student(self.getName(id), month)
+            self.addProgress(id, month, date, balance, strength, flexibility, endurance, core, semangat)
             return
 
         row = readFile(fileName)
