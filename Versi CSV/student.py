@@ -286,10 +286,9 @@ class Students:
         
     # <------------------- METHOD SETTER ------------------->
 
-    def updateStudentData(self, id, month, date, balance=None, strength=None, flexibility=None, endurance=None, core=None, semangat=None, total=None):
+    def updateStudentData(self, id, month, date, balance=None, strength=None, flexibility=None, endurance=None, core=None, semangat=None):
         fileName = f"data/{self.getName(id)}/{month}/data.csv"
         data = readFile(fileName)
-        
         # Find the row with the given date and update the corresponding columns
         updated = False
         for row in data:
@@ -306,10 +305,12 @@ class Students:
                     row[5] = core
                 if semangat is not None:
                     row[6] = semangat
-                if total is not None:
-                    row[7] = total
+                    
+                row[7] = int(row[1]) + int(row[2]) + int(row[3]) + int(row[4]) + int(row[5]) + int(row[6])
+
                 updated = True
                 break
+
         
         if updated:
             with open(fileName, mode='w', newline='') as file:
@@ -358,3 +359,4 @@ class Students:
     
     def setSemangat(self, id, month, date, semangat):
         self.updateStudentData(id, month, date, semangat=semangat)
+

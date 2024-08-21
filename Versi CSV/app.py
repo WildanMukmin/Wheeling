@@ -21,13 +21,13 @@ class ContectDisplayAllStudents(CTkScrollableFrame):
         self.button_list = []
 
     def manage_button(self, data, image=None):
-        label_id = CTkLabel(self, text=f"id : {data[0]}", image=image, compound="left", anchor="w", fg_color="white", corner_radius=10, width=100, height=24)
-        label_name = CTkLabel(self, text=f"Name : {data[1]}", image=image, compound="left", anchor="w", fg_color="white", corner_radius=10, width=100, height=24)
-        button_newData = CTkButton(self, text="NewData", width=100, height=24)
-        button_detail = CTkButton(self, text="Detail", width=100, height=24)
-        button_delete = CTkButton(self, text="Delete", width=100, height=24, fg_color="red")
-        button_update = CTkButton(self, text="Update", width=100, height=24, fg_color="orange")
-        button_graph = CTkButton(self, text="Graph", width=100, height=24, fg_color="green")
+        label_id = CTkLabel(self, text=f"id : {data[0]}", image=image, compound="left", anchor="w", fg_color="#1E3A8A", text_color="white", corner_radius=10, width=100, height=24)
+        label_name = CTkLabel(self, text=f"Name : {data[1]}", image=image, compound="left", anchor="w", fg_color="#047857", text_color="white", corner_radius=10, width=100, height=24)
+        button_newData = CTkButton(self, text="NewData", width=100, height=24, fg_color="#10B981", hover_color="#10B931")
+        button_detail = CTkButton(self, text="Detail", width=100, height=24, fg_color="#3B82F6", hover_color="#3B82A6")
+        button_delete = CTkButton(self, text="Delete", width=100, height=24, fg_color="#EF4444", hover_color="#EF4F74")
+        button_update = CTkButton(self, text="Update", width=100, height=24, fg_color="#F59E0B", hover_color="#F56E02")
+        button_graph = CTkButton(self, text="Graph", width=100, height=24, fg_color="#8B5CF6", hover_color="#8B5CA6")
         
         if self.command is not None:
             button_newData.configure(command=lambda: self.command('newData', data[1]))
@@ -62,7 +62,8 @@ class SkatingApp:
         self.db = Students()
         self.root.title("Skating Coach App")
         self.root.geometry("1365x700")
-
+        self.current_month = None
+        
         # Frames
         self.frame_parent = CTkFrame(self.root, fg_color="white")
         self.frame_parent.place(relwidth=1, relheight=1)
@@ -76,7 +77,7 @@ class SkatingApp:
         # <--------------------------- HEADER --------------------------->
         
         # Month selection dropdown
-        self.month_var = StringVar()
+        self.month_var = StringVar(value="agustus")
         self.month_menu = CTkOptionMenu(self.frame_header, variable=self.month_var, values=[
             "januari", "febuari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember"])
         self.month_menu.place(relx=0.5, rely=0.5, anchor="center")
@@ -148,31 +149,31 @@ class SkatingApp:
         self.clear_frame(self.frame_content)
         
         CTkLabel(self.frame_content, text="Date").grid(row=0, column=0, padx=10, pady=10)
-        date_entry = CTkEntry(self.frame_content)
+        date_entry = CTkEntry(self.frame_content, placeholder_text="Masukan Date", width=180)
         date_entry.grid(row=0, column=1, padx=10, pady=10)
         
         CTkLabel(self.frame_content, text="Balance").grid(row=1, column=0, padx=10, pady=10)
-        balance_entry = CTkEntry(self.frame_content)
+        balance_entry = CTkEntry(self.frame_content, placeholder_text="Masukan Balanace Point", width=180)
         balance_entry.grid(row=1, column=1, padx=10, pady=10)
         
         CTkLabel(self.frame_content, text="Strength").grid(row=2, column=0, padx=10, pady=10)
-        strength_entry = CTkEntry(self.frame_content)
+        strength_entry = CTkEntry(self.frame_content, placeholder_text="Masukan Strength Point", width=180)
         strength_entry.grid(row=2, column=1, padx=10, pady=10)
         
         CTkLabel(self.frame_content, text="Flexibility").grid(row=3, column=0, padx=10, pady=10)
-        flexibility_entry = CTkEntry(self.frame_content)
+        flexibility_entry = CTkEntry(self.frame_content, placeholder_text="Masukan Flexibility Point", width=180)
         flexibility_entry.grid(row=3, column=1, padx=10, pady=10)
         
         CTkLabel(self.frame_content, text="Endurance").grid(row=4, column=0, padx=10, pady=10)
-        endurance_entry = CTkEntry(self.frame_content)
+        endurance_entry = CTkEntry(self.frame_content, placeholder_text="Masukan Endurance Point", width=180)
         endurance_entry.grid(row=4, column=1, padx=10, pady=10)
         
         CTkLabel(self.frame_content, text="Core").grid(row=5, column=0, padx=10, pady=10)
-        core_entry = CTkEntry(self.frame_content)
+        core_entry = CTkEntry(self.frame_content, placeholder_text="Masukan Core Point", width=180)
         core_entry.grid(row=5, column=1, padx=10, pady=10)
         
         CTkLabel(self.frame_content, text="Semangat").grid(row=6, column=0, padx=10, pady=10)
-        semangat_entry = CTkEntry(self.frame_content)
+        semangat_entry = CTkEntry(self.frame_content, placeholder_text="Masukan Semangat Point", width=180)
         semangat_entry.grid(row=6, column=1, padx=10, pady=10)
         
         def save_progress():
@@ -203,63 +204,185 @@ class SkatingApp:
         for row_index, detail in enumerate(student_details, start=1):
             detail_row = [id, student_name] + detail
             for col_index, data in enumerate(detail_row):
-                CTkLabel(self.frame_content, text=data, width=100, height=24).grid(row=row_index, column=col_index, padx=5, pady=5)
+                CTkLabel(self.frame_content, text=data, width=100, height=24, fg_color="skyblue").grid(row=row_index, column=col_index, padx=5, pady=5)
 
     def delete_student(self, id):
         self.db.deleteData(id)
 
     def update_student(self, id, month):
         self.clear_frame(self.frame_content)
+        self.current_month = month
+        old_date = self.db.getDate(id, self.current_month)
         
-        CTkLabel(self.frame_content, text="Update Name").grid(row=0, column=0, padx=10, pady=10)
-        name_entry = CTkEntry(self.frame_content)
-        name_entry.grid(row=0, column=1, padx=10, pady=10)
+        self.date_var = StringVar(value=old_date[0])
+        self.date_menu = CTkOptionMenu(self.frame_content, variable=self.date_var, values=old_date)
+        self.date_menu.grid(row=0, column=1, padx=10, pady=10)
+
+        # Variabel untuk menyimpan data
+        balance_var = StringVar()
+        strength_var = StringVar()
+        flexibility_var = StringVar()
+        endurance_var = StringVar()
+        core_var = StringVar()
+        semangat_var = StringVar()
         
-        def update_student_name():
-            new_name = name_entry.get()
-            self.db.updateData(id, new_name)
-            self.display_all()  # Refresh the list
+        def refresh():
+            self.clear_frame(self.frame_content)
+            
+            # Mengambil nilai yang diperbarui
+            old_date = self.db.getDate(id, self.current_month)
+            
+            balance_temp = self.db.getBalance(id, self.current_month)
+            strength_temp = self.db.getStrength(id, self.current_month)
+            flexibility_temp = self.db.getFlexibility(id, self.current_month)
+            endurance_temp = self.db.getEndurance(id, self.current_month)
+            core_temp = self.db.getCore(id, self.current_month)
+            semangat_temp = self.db.getSemangat(id, self.current_month)
+            
+            for i in range(len(old_date)):
+                # print(old_date[i])
+                # print(self.date_var.get())
+                if old_date[i] == self.date_var.get():
+                    balance_var.set(balance_temp[i])
+                    strength_var.set(strength_temp[i])
+                    flexibility_var.set(flexibility_temp[i])
+                    endurance_var.set(endurance_temp[i])
+                    core_var.set(core_temp[i])
+                    semangat_var.set(semangat_temp[i])
+                    break
+            
+            refresh_button = CTkButton(self.frame_content, text="Refresh", command=refresh)
+            refresh_button.grid(row=0, column=3, padx=10, pady=10)
+            
+            self.date_menu = CTkOptionMenu(self.frame_content, variable=self.date_var, values=old_date)
+            self.date_menu.grid(row=0, column=1, padx=10, pady=10)
+            
+            # Balance
+            CTkLabel(self.frame_content, text="Balance").grid(row=1, column=0, padx=10, pady=10)
+            balance_entry = CTkEntry(self.frame_content, textvariable=balance_var)
+            balance_entry.grid(row=1, column=1, padx=10, pady=10)
+            
+            # Strength
+            CTkLabel(self.frame_content, text="Strength").grid(row=2, column=0, padx=10, pady=10)
+            strength_entry = CTkEntry(self.frame_content, textvariable=strength_var)
+            strength_entry.grid(row=2, column=1, padx=10, pady=10)
+            
+            # Flexibility
+            CTkLabel(self.frame_content, text="Flexibility").grid(row=3, column=0, padx=10, pady=10)
+            flexibility_entry = CTkEntry(self.frame_content, textvariable=flexibility_var)
+            flexibility_entry.grid(row=3, column=1, padx=10, pady=10)
+            
+            # Endurance
+            CTkLabel(self.frame_content, text="Endurance").grid(row=4, column=0, padx=10, pady=10)
+            endurance_entry = CTkEntry(self.frame_content, textvariable=endurance_var)
+            endurance_entry.grid(row=4, column=1, padx=10, pady=10)
+            
+            # Core
+            CTkLabel(self.frame_content, text="Core").grid(row=5, column=0, padx=10, pady=10)
+            core_entry = CTkEntry(self.frame_content, textvariable=core_var)
+            core_entry.grid(row=5, column=1, padx=10, pady=10)
+            
+            # Semangat
+            CTkLabel(self.frame_content, text="Semangat").grid(row=6, column=0, padx=10, pady=10)
+            semangat_entry = CTkEntry(self.frame_content, textvariable=semangat_var)
+            semangat_entry.grid(row=6, column=1, padx=10, pady=10)            
+
+            update_button = CTkButton(self.frame_content, text="Update", command=update)
+            update_button.grid(row=7, column=0, columnspan=2, pady=20)
         
-        update_button = CTkButton(self.frame_content, text="Update", command=update_student_name)
-        update_button.grid(row=1, column=0, columnspan=2, pady=20)
+        refresh_button = CTkButton(self.frame_content, text="Refresh", command=refresh)
+        refresh_button.grid(row=0, column=3, padx=10, pady=10)
+
+        CTkLabel(self.frame_content, text="Balance").grid(row=1, column=0, padx=10, pady=10)
+        balance_entry = CTkEntry(self.frame_content)
+        balance_entry.grid(row=1, column=1, padx=10, pady=10)
+
+        CTkLabel(self.frame_content, text="Strength").grid(row=2, column=0, padx=10, pady=10)
+        strength_entry = CTkEntry(self.frame_content)
+        strength_entry.grid(row=2, column=1, padx=10, pady=10)
+
+        CTkLabel(self.frame_content, text="Flexibility").grid(row=3, column=0, padx=10, pady=10)
+        flexibility_entry = CTkEntry(self.frame_content)
+        flexibility_entry.grid(row=3, column=1, padx=10, pady=10)
+
+        CTkLabel(self.frame_content, text="Endurance").grid(row=4, column=0, padx=10, pady=10)
+        endurance_entry = CTkEntry(self.frame_content)
+        endurance_entry.grid(row=4, column=1, padx=10, pady=10)
+
+        CTkLabel(self.frame_content, text="Core").grid(row=5, column=0, padx=10, pady=10)
+        core_entry = CTkEntry(self.frame_content)
+        core_entry.grid(row=5, column=1, padx=10, pady=10)
+
+        CTkLabel(self.frame_content, text="Semangat").grid(row=6, column=0, padx=10, pady=10)
+        semangat_entry = CTkEntry(self.frame_content)
+        semangat_entry.grid(row=6, column=1, padx=10, pady=10)
+        
+        def update():
+            balance = int(balance_var.get())
+            strength = int(strength_var.get())
+            flexibility = int(flexibility_var.get())
+            endurance = int(endurance_var.get())
+            core = int(core_var.get())
+            semangat = int(semangat_var.get())
+
+            self.db.updateStudentData(id, self.current_month, self.date_var.get(), balance=balance, strength=strength, flexibility=flexibility, endurance=endurance, core=core, semangat=semangat)
+            self.display_student_details(id, self.current_month)  # Refresh the details display
+
+        update_button = CTkButton(self.frame_content, text="Update", command=update)
+        update_button.grid(row=7, column=0, columnspan=2, pady=20)
 
     def display_graph(self, id, month):
         self.clear_frame(self.frame_content)
-        
-        dates = self.db.getDate(id, month)
-        balances = list(map(int, self.db.getBalance(id, month)))
-        strengths = list(map(int, self.db.getStrength(id, month)))
-        flexibilities = list(map(int, self.db.getFlexibility(id, month)))
-        endurances = list(map(int, self.db.getEndurance(id, month)))
-        cores = list(map(int, self.db.getCore(id, month)))
-        semangats = list(map(int, self.db.getSemangat(id, month)))
-        totals = list(map(int, self.db.getTotal(id, month)))
-        
+
         fig, ax = plt.subplots()
-        
-        def plot_graph():
+
+        def plot_graf():
             ax.clear()
-            ax.plot(dates, balances, label='Balance')
-            ax.plot(dates, strengths, label='Strength')
-            ax.plot(dates, flexibilities, label='Flexibility')
-            ax.plot(dates, endurances, label='Endurance')
-            ax.plot(dates, cores, label='Core')
-            ax.plot(dates, semangats, label='Semangat')
-            ax.set_xlabel('Date')
-            ax.set_ylabel('Scores')
-            ax.set_title(f'Student ID: {id} Progress in {month}')
-            ax.legend()
+            ax.set_xlabel('Tanggal', labelpad=30)
+            ax.set_ylabel('Point', labelpad=30)
+            ax.set_title(f'Progress {self.db.getName(id)} di bulan {month}', pad=35)
+            
+            # Menambahkan plot dengan label
+            ax.plot(self.db.getDate(id, month), self.db.getBalance(id, month), label='Balance')
+            ax.plot(self.db.getDate(id, month), self.db.getStrength(id, month), label='Strength')
+            ax.plot(self.db.getDate(id, month), self.db.getFlexibility(id, month), label='Flexibility')
+            ax.plot(self.db.getDate(id, month), self.db.getEndurance(id, month), label='Endurance')
+            ax.plot(self.db.getDate(id, month), self.db.getCore(id, month), label='Core')
+            ax.plot(self.db.getDate(id, month), self.db.getSemangat(id, month), label='Semangat')
+
+            # Menambahkan legend
+            labels = "Balance", "Strength", "Flexibility", "Endurance", "Core", "Semangat"
+            ax.legend(labels, loc="upper left", bbox_to_anchor=(1, 0, 0.5, 1), facecolor='white', edgecolor='black')
+            
+            # Menyimpan grafik
+            plt.savefig(f"./data/{self.db.getName(id)}/{month}/plot_graf.png", bbox_inches='tight')
+            # ax.legend(labels, title="Aspek", loc="upper right", facecolor='white', edgecolor='black')
+
+            # Render ke canvas
             canvas.draw()
-        
-        def plot_total_graph():
+
+        def plot_total_graf():
             ax.clear()
-            ax.plot(dates, totals, label='Total')
-            ax.set_xlabel('Date')
-            ax.set_ylabel('Total Score')
-            ax.set_title(f'Student ID: {id} Total Progress in {month}')
-            ax.legend()
+            ax.set_xlabel('Tanggal', labelpad=30)
+            ax.set_ylabel('Point', labelpad=30)
+            ax.set_title(f'Progress total {self.db.getName(id)} di bulan {month}', pad=35)
+            ax.grid()
+
+            # Menambahkan plot dengan label
+            ax.plot(self.db.getDate(id, month), self.db.getTotal(id, month), label='Total')
+
+            # Menambahkan legend
+            label = "Total"
+            ax.legend(label, loc="upper left", bbox_to_anchor=(1, 0, 0.5, 1), facecolor='white', edgecolor='black')
+            
+            # Menyimpan grafik
+            plt.savefig(f"./data/{self.db.getName(id)}/{month}/plot_graf_total.png", bbox_inches='tight')
+            # ax.legend(loc="upper right", facecolor='white', edgecolor='black')
+
+            # Render ke canvas
             canvas.draw()
-        
+
+        # Membuat canvas Tkinter
         canvas = FigureCanvasTkAgg(fig, master=self.frame_content)
         canvas.draw()
         canvas.get_tk_widget().pack(fill='both', expand=True)
@@ -267,10 +390,12 @@ class SkatingApp:
         button_frame = CTkFrame(self.frame_content)
         button_frame.pack(fill='x')
         
-        CTkButton(button_frame, text="Graph", command=plot_graph).pack(side='left', padx=10, pady=10)
-        CTkButton(button_frame, text="Total Graph", command=plot_total_graph).pack(side='right', padx=10, pady=10)
+        CTkButton(button_frame, text="Graph", command=plot_graf).pack(side='left', padx=10, pady=10)
+        CTkButton(button_frame, text="Total Graph", command=plot_total_graf).pack(side='right', padx=10, pady=10)
         
-        plot_graph()
+        plot_graf()
+
+
 
 if __name__ == "__main__":
     root = CTk()
