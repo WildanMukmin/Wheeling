@@ -2,6 +2,7 @@ import csv
 import os
 from pathlib import Path
 import shutil
+import matplotlib.pyplot as plt
 
 # <---------------------- Akses File ---------------------->
 
@@ -360,3 +361,64 @@ class Students:
     def setSemangat(self, id, month, date, semangat):
         self.updateStudentData(id, month, date, semangat=semangat)
 
+    def graph(self, id, month):
+        fig, ax = plt.subplots()
+
+        def draw_graf(filename, title, y_data, labels=None):
+            ax.clear()
+            ax.set_xlabel('Tanggal', labelpad=30)
+            ax.set_ylabel('Point', labelpad=30)
+            ax.set_title(title, pad=35)
+            ax.grid()
+
+            # Plot data
+            for y, label in zip(y_data, labels):
+                ax.plot(self.getDate(id, month), y, label=label)
+            
+            # Add legend
+            if labels:
+                ax.legend(labels, loc="upper left", bbox_to_anchor=(1, 0, 0.5, 1), facecolor='white', edgecolor='black')
+            
+            # Save the plot
+            try:
+                os.makedirs(os.path.dirname(filename), exist_ok=True)
+                plt.savefig(filename, bbox_inches='tight')
+            except Exception as e:
+                print(f"Error saving plot: {e}")
+            finally:
+                plt.close(fig)  # Close the figure to free up memory
+
+
+        def plot_graf():
+            y_data = [
+                self.getBalance(id, month),
+                self.getStrength(id, month),
+                self.getFlexibility(id, month),
+                self.getEndurance(id, month),
+                self.getCore(id, month),
+                self.getSemangat(id, month)
+            ]
+            labels = ["Balance", "Strength", "Flexibility", "Endurance", "Core", "Semangat"]
+            title = f'Progress {self.getName(id)} di bulan {month}'
+            filename = f"./data/{self.getName(id)}/{month}/plot_graf.png"
+            # print(y_data, "anu")
+            draw_graf(filename, title, y_data, labels)
+
+        def plot_total_graf():
+            y_data = [self.getTotal(id, month)]
+            labels = ["Total"]
+            title = f'Progress total {self.getName(id)} di bulan {month}'
+            filename = f"./data/{self.getName(id)}/{month}/plot_graf_total.png"
+            # print(y_data, "ani")
+            draw_graf(filename, title, y_data, labels)
+
+        plot_graf()
+        plot_total_graf()
+
+
+anu = Students()
+anu.graph(1, "agustus")
+anu.graph(2, "agustus")
+anu.graph(3, "agustus")
+anu.graph(4, "agustus")
+anu.graph(5, "agustus")
