@@ -1,8 +1,7 @@
-from customtkinter import CTkFrame, CTkLabel, CTkButton, CTkEntry, CTkOptionMenu, CTk, CTkScrollableFrame
+from customtkinter import CTkFrame, CTkLabel, CTkButton, CTkEntry, CTkOptionMenu, CTk, CTkScrollableFrame, CTkImage
 from tkinter import StringVar
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from student import Students
+from PIL import Image
 
 class ContectDisplayAllStudents(CTkScrollableFrame):
     def __init__(self, master, command=None, **kwargs):
@@ -331,67 +330,43 @@ class SkatingApp:
         update_button = CTkButton(self.frame_content, text="Update", command=update)
         update_button.grid(row=7, column=0, columnspan=2, pady=20)
 
-    # def display_graph(self, id, month):
-    #     self.clear_frame(self.frame_content)
-
-    #     fig, ax = plt.subplots()
-
-    #     def plot_graf():
-    #         ax.clear()
-    #         ax.set_xlabel('Tanggal', labelpad=30)
-    #         ax.set_ylabel('Point', labelpad=30)
-    #         ax.set_title(f'Progress {self.db.getName(id)} di bulan {month}', pad=35)
-            
-    #         # Menambahkan plot dengan label
-    #         ax.plot(self.db.getDate(id, month), self.db.getBalance(id, month), label='Balance')
-    #         ax.plot(self.db.getDate(id, month), self.db.getStrength(id, month), label='Strength')
-    #         ax.plot(self.db.getDate(id, month), self.db.getFlexibility(id, month), label='Flexibility')
-    #         ax.plot(self.db.getDate(id, month), self.db.getEndurance(id, month), label='Endurance')
-    #         ax.plot(self.db.getDate(id, month), self.db.getCore(id, month), label='Core')
-    #         ax.plot(self.db.getDate(id, month), self.db.getSemangat(id, month), label='Semangat')
-
-    #         # Menambahkan legend
-    #         labels = "Balance", "Strength", "Flexibility", "Endurance", "Core", "Semangat"
-    #         ax.legend(labels, loc="upper left", bbox_to_anchor=(1, 0, 0.5, 1), facecolor='white', edgecolor='black')
-    #         plt.yticks(range(0,20, 4))
-    #         plt.subplots_adjust(right=1.3)
-            
-    #         # Menyimpan grafik
-    #         plt.savefig(f"./data/{self.db.getName(id)}/{month}/plot_graf.png", bbox_inches='tight')
-
-
-    #     def plot_total_graf():
-    #         ax.clear()
-    #         ax.set_xlabel('Tanggal', labelpad=30)
-    #         ax.set_ylabel('Point', labelpad=30)
-    #         ax.set_title(f'Progress total {self.db.getName(id)} di bulan {month}', pad=35)
-    #         ax.grid()
-
-    #         # Menambahkan plot dengan label
-    #         ax.plot(self.db.getDate(id, month), self.db.getTotal(id, month), label='Total')
-
-    #         # Menambahkan legend
-    #         label = "Total"
-    #         ax.legend(label, loc="upper left", bbox_to_anchor=(1, 0, 0.5, 1), facecolor='white', edgecolor='black')
-    #         plt.yticks(range(10,110, 10))
-    #         plt.subplots_adjust(right=1.3)
-            
-    #         # Menyimpan grafik
-    #         plt.savefig(f"./data/{self.db.getName(id)}/{month}/plot_graf_total.png", bbox_inches='tight')
-
-
-    #     graph_frame = CTkFrame(self.frame_content, fg_color="white")
-    #     graph_frame.place(relx=0.5, rely=0.88, relwidth=0.9, relheight=0.8, anchor="center")
+    def display_graph(self, id, month):
+        self.clear_frame(self.frame_content)
         
-    #     button_frame = CTkFrame(self.frame_content)
-    #     button_frame.place(relx=0.5, rely=0.96, relwidth=0.9, relheight=0.07, anchor="center")
+        filename = f"./data/{self.db.getName(id)}/{month}/"
         
-    #     CTkButton(button_frame, text="Graph", command=plot_graf).pack(side='left', padx=10, pady=10)
-    #     CTkButton(button_frame, text="Total Graph", command=plot_total_graf).pack(side='right', padx=10, pady=10)
+        # graph_frame = CTkFrame(self.frame_content, fg_color="white")
+        # graph_frame.place(relx=0.5, rely=0.88, relwidth=0.9, relheight=0.8, anchor="center")
         
-    #     plot_graf()
 
-
+        def plot_graf():
+            self.clear_frame(self.frame_content)
+            img_graf = CTkImage(light_image=Image.open(f"{filename}plot.png"),dark_image=Image.open(f"{filename}plot.png"),size=(1000, 500))
+            CTkLabel(self.frame_content, image=img_graf, text="").place(relx=0.5, rely=0.5, anchor="center")
+            button_frame = CTkFrame(self.frame_content)
+            button_frame.place(relx=0.5, rely=0.98, relwidth=0.9, relheight=0.07, anchor="center")
+            CTkButton(button_frame, text="Graph", command=plot_graf).pack(side='left', padx=10, pady=10)
+            CTkButton(button_frame, text="Total Graph", command=plot_total_graf).pack(side='right', padx=10, pady=10)
+            
+        
+        def plot_total_graf():
+            self.clear_frame(self.frame_content)
+            img_graf = CTkImage(light_image=Image.open(f"{filename}plot_total.png"),dark_image=Image.open(f"{filename}plot_total.png"),size=(1000, 500))
+            CTkLabel(self.frame_content, image=img_graf, text="").place(relx=0.5, rely=0.5, anchor="center")
+            button_frame = CTkFrame(self.frame_content)
+            button_frame.place(relx=0.5, rely=0.98, relwidth=0.9, relheight=0.07, anchor="center")
+            CTkButton(button_frame, text="Graph", command=plot_graf).pack(side='left', padx=10, pady=10)
+            CTkButton(button_frame, text="Total Graph", command=plot_total_graf).pack(side='right', padx=10, pady=10)
+            
+            
+        plot_graf()
+        
+        button_frame = CTkFrame(self.frame_content)
+        button_frame.place(relx=0.5, rely=0.98, relwidth=0.9, relheight=0.07, anchor="center")
+        CTkButton(button_frame, text="Graph", command=plot_graf).pack(side='left', padx=10, pady=10)
+        CTkButton(button_frame, text="Total Graph", command=plot_total_graf).pack(side='right', padx=10, pady=10)
+        
+ 
 
 if __name__ == "__main__":
     root = CTk()

@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 import shutil
 import matplotlib.pyplot as plt
-
+import pandas as pd
 # <---------------------- Akses File ---------------------->
 
 def readFile(fileName):
@@ -362,63 +362,75 @@ class Students:
         self.updateStudentData(id, month, date, semangat=semangat)
 
     def graph(self, id, month):
+        filename = f"./data/{self.getName(id)}/{month}/data.csv"
+        data = pd.read_csv(filename)
+
         fig, ax = plt.subplots()
+        ax.plot(data['date'], data['balance'])
+        ax.plot(data['date'], data['strength'])
+        ax.plot(data['date'], data['flexibility'])
+        ax.plot(data['date'], data['endurance'])
+        ax.plot(data['date'], data['core'])
+        ax.plot(data['date'], data['semangat'])
+        ax.grid()
 
-        def draw_graf(filename, title, y_data, labels=None):
-            ax.clear()
-            ax.set_xlabel('Tanggal', labelpad=30)
-            ax.set_ylabel('Point', labelpad=30)
-            ax.set_title(title, pad=35)
-            ax.grid()
+        # Menambahkan judul dan label sumbu
+        plt.title(f"Data Dari {self.getName(id)} Pada Bulan {month}", pad=35)
+        plt.xlabel("Tanggal", labelpad=30)
+        plt.ylabel("Point", labelpad=30)
 
-            # Plot data
-            for y, label in zip(y_data, labels):
-                ax.plot(self.getDate(id, month), y, label=label)
-            
-            # Add legend
-            if labels:
-                ax.legend(labels, loc="upper left", bbox_to_anchor=(1, 0, 0.5, 1), facecolor='white', edgecolor='black')
-            
-            # Save the plot
-            try:
-                os.makedirs(os.path.dirname(filename), exist_ok=True)
-                plt.savefig(filename, bbox_inches='tight')
-            except Exception as e:
-                print(f"Error saving plot: {e}")
-            finally:
-                plt.close(fig)  # Close the figure to free up memory
+        # Menambahkan padding di bagian kanan
+        plt.subplots_adjust(right=1.3)
 
+        labels = ("balance", "strength", "flexibility", "endurance", "core", "semangat", "total")
 
-        def plot_graf():
-            y_data = [
-                self.getBalance(id, month),
-                self.getStrength(id, month),
-                self.getFlexibility(id, month),
-                self.getEndurance(id, month),
-                self.getCore(id, month),
-                self.getSemangat(id, month)
-            ]
-            labels = ["Balance", "Strength", "Flexibility", "Endurance", "Core", "Semangat"]
-            title = f'Progress {self.getName(id)} di bulan {month}'
-            filename = f"./data/{self.getName(id)}/{month}/plot_graf.png"
-            # print(y_data, "anu")
-            draw_graf(filename, title, y_data, labels)
+        # Menambahkan legend
+        ax.legend(labels, title="aspek", loc="upper left", bbox_to_anchor=(1, 0, 0.5, 1), facecolor='#ffffff', edgecolor='black')
 
-        def plot_total_graf():
-            y_data = [self.getTotal(id, month)]
-            labels = ["Total"]
-            title = f'Progress total {self.getName(id)} di bulan {month}'
-            filename = f"./data/{self.getName(id)}/{month}/plot_graf_total.png"
-            # print(y_data, "ani")
-            draw_graf(filename, title, y_data, labels)
+        # Mengatur warna
+        plt.gca().set_facecolor('#ffffff')
+        fig.patch.set_facecolor('#ffffff')
 
-        plot_graf()
-        plot_total_graf()
+        # Mengatur sumbu Y untuk menunjukkan kelipatan 4
+        plt.yticks(range(0,21,5))
 
+        plt.xticks(rotation=60)
 
-anu = Students()
-anu.graph(1, "agustus")
-anu.graph(2, "agustus")
-anu.graph(3, "agustus")
-anu.graph(4, "agustus")
-anu.graph(5, "agustus")
+        plt.savefig(f"./data/{self.getName(id)}/{month}/plot.png", bbox_inches='tight')        
+
+    def graph_total(self, id, month):
+        filename = f"./data/{self.getName(id)}/{month}/data.csv"
+        data = pd.read_csv(filename)
+
+        fig, ax = plt.subplots()
+        ax.plot(data['date'], data['total'])
+        ax.grid()
+
+        # Menambahkan judul dan label sumbu
+        plt.title(f"Data Total Dari {self.getName(id)} Pada Bulan {month}", pad=35)
+        plt.xlabel("Tanggal", labelpad=30)
+        plt.ylabel("Point", labelpad=30)
+
+        # Menambahkan padding di bagian kanan
+        plt.subplots_adjust(right=1.3)
+
+        labels = ("balance", "strength", "flexibility", "endurance", "core", "semangat", "total")
+
+        # Menambahkan legend
+        ax.legend(labels, title="aspek", loc="upper left", bbox_to_anchor=(1, 0, 0.5, 1), facecolor='#ffffff', edgecolor='black')
+
+        # Mengatur warna
+        plt.gca().set_facecolor('#ffffff')
+        fig.patch.set_facecolor('#ffffff')
+
+        # Mengatur sumbu Y untuk menunjukkan kelipatan 4
+        plt.yticks(range(10,111,10))
+
+        plt.xticks(rotation=60)
+
+        plt.savefig(f"./data/{self.getName(id)}/{month}/plot_total.png", bbox_inches='tight')      
+
+    def generate_graph(self, id, month):
+        self.graph(id, month)
+        self.graph_total(id, month)
+
